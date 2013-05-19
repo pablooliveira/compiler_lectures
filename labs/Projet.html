@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+  </style>
+  <link rel="stylesheet" href="pandoc.css" type="text/css" />
+</head>
+<body>
+<div id="TOC">
+<ul>
+<li><a href="#projet-compilation">Projet Compilation</a><ul>
+<li><a href="#règles">Règles</a><ul>
+<li><a href="#rendu">Rendu</a></li>
+<li><a href="#questions">Questions</a></li>
+<li><a href="#plagiat">Plagiat</a></li>
+</ul></li>
+<li><a href="#objectif">Objectif</a></li>
+<li><a href="#comment-tester-votre-projet">Comment tester votre projet</a></li>
+<li><a href="#comment-sera-noté-votre-projet">Comment sera noté votre projet</a></li>
+<li><a href="#bonus">Bonus</a></li>
+</ul></li>
+</ul>
+</div>
+<h1 id="projet-compilation"><a href="#TOC">Projet Compilation</a></h1>
+<h2 id="règles"><a href="#TOC">Règles</a></h2>
+<h3 id="rendu"><a href="#TOC">Rendu</a></h3>
+<p>Le projet est à rendre avant le mercredi 24 avril à 23h59. Pour rendre le projet envoyer une archive qui respecte la nomenclature <code>nom1-nom2-projet-compil-13.tar.gz</code> à l’adresse <script type="text/javascript">
+<!--
+h='&#112;&#114;&#x69;&#x73;&#x6d;&#46;&#x75;&#118;&#x73;&#x71;&#46;&#102;&#114;';a='&#64;';n='&#112;&#x61;&#98;&#108;&#x6f;&#46;&#x6f;&#108;&#x69;&#118;&#x65;&#x69;&#114;&#x61;';e=n+a+h;
+document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'">'+'<code>'+e+'</code>'+'<\/'+'a'+'>');
+// -->
+</script><noscript>&#112;&#x61;&#98;&#108;&#x6f;&#46;&#x6f;&#108;&#x69;&#118;&#x65;&#x69;&#114;&#x61;&#32;&#x61;&#116;&#32;&#112;&#114;&#x69;&#x73;&#x6d;&#32;&#100;&#x6f;&#116;&#32;&#x75;&#118;&#x73;&#x71;&#32;&#100;&#x6f;&#116;&#32;&#102;&#114;</noscript>. Le sujet du mail sera “[COMPIL] Rendu Projet nom1 nom2”. (Si les consignes de rendu ne sont pas respectées, votre note projet sera minorée d’un point).</p>
+<p>Un projet rendu en retard aura la note éliminatoire de 0/20.</p>
+<h3 id="questions"><a href="#TOC">Questions</a></h3>
+<p>Les questions sont encouragées sur le site <a href="https://piazza.com/#spring2013/ini2compilation/"><code class="url">https://piazza.com/#spring2013/ini2compilation/</code></a>.</p>
+<h3 id="plagiat"><a href="#TOC">Plagiat</a></h3>
+<p>Si vous empruntez du code il faut:</p>
+<ol style="list-style-type: decimal">
+<li><p>Citer sa provenance</p></li>
+<li><p>S’assurer que la licence du code vous permet de l’employer</p></li>
+</ol>
+<p>Vous pouvez discuter et collaborer entre groupes, mais il est strictement interdit de copier du code entre groupes.</p>
+<p>Il est interdit de publier votre code.</p>
+<p>Si vous ne respectez pas ces règles, votre note projet sera de 0/20.</p>
+<h2 id="objectif"><a href="#TOC">Objectif</a></h2>
+<p>L’objectif du projet de compilation est d’écrire la phase de traduction en langage Intermédiaire. Toutes les phases du compilateur vues en TP vous sont fournies: du lexeur jusqu’à la vérification des types. Le code qui vous est fourni à l’adresse <a href="http://tahiti.prism.uvsq.fr/jtiger/static/support/livrable-projet.zip"><code class="url">http://tahiti.prism.uvsq.fr/jtiger/static/support/livrable-projet.zip</code></a> prends en entrée du code Tiger et produit un AST décoré avec les informations de bind. L’AST est stocké après la phase de Type checking dans l’attribut <code>ast</code> de la classe <code>jtiger.cli.Control</code>.</p>
+<p>Vous devez implémenter la traduction en langage intermédiaire qui a été expliquée en cours. Pour rappel, la grammaire de la représentation intermédiaire (IR) est donnée ci-dessous,</p>
+<pre><code>Sxp ::= &quot;const&quot; int
+      | &quot;name&quot; Label
+      | &quot;temp&quot; Temp
+      | &quot;binop&quot; Oper Sxp Sxp
+      | &quot;mem&quot; Sxp
+      | &quot;call&quot; Sxp [{Sxp}]
+      | &quot;eseq&quot; Stm Sxp
+
+Stm ::= &quot;Move&quot; Sxp Sxp
+      | &quot;sxp&quot; Sxp
+      | &quot;jump&quot; Sxp [{Label}]
+      | &quot;cjump&quot; Relop Exp Exp Label Label
+      | &quot;seq&quot; [{Stm}]
+      | &quot;label&quot; Label
+Oper ::= &quot;+&quot; | &quot;-&quot; | &quot;*&quot; | &quot;/&quot;
+Relop ::= &quot;=&quot; | &quot;&lt;&gt;&quot; | &quot;&lt;=&quot; | &quot;&gt;=&quot; | &quot;&lt;&quot; | &quot;&gt;&quot;</code></pre>
+<p>Votre projet doit prendre en entrée du code Tiger et produire sur la sortie standard la représentation intermédiaire.</p>
+<p></p>
+<p>Voici un exemple,</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">echo</span> <span class="st">&quot;print_int(21*2)&quot;</span> <span class="kw">&gt;</span> test1.tig 
+$ java jtiger.cli.Compile -h test1.tig <span class="kw">&gt;</span> test1.ir
+$ <span class="kw">cat</span> test1.ir
+<span class="kw">seq</span>
+  label main
+  move
+    temp x1
+    temp fp
+  move
+    temp fp
+    temp sp
+  move
+    temp sp
+    binop <span class="kw">(</span>-<span class="kw">)</span>
+      temp sp
+      const 4
+  move
+    mem
+      temp fp
+    temp i0
+  move
+    temp rv
+    eseq
+      sxp
+        call
+          name print_int
+          binop <span class="kw">(</span>*<span class="kw">)</span>
+            const 21
+            const 2
+        call end
+      const 0
+  move
+    temp sp
+    temp fp
+  move
+    temp fp
+    temp x1
+  label end
+<span class="kw">seq</span> end</code></pre>
+<h2 id="comment-tester-votre-projet"><a href="#TOC">Comment tester votre projet</a></h2>
+<p>Pour tester votre projet, vous pouvez utiliser le simulateur HAVM 0.25. Pour installer HAVM suivez les instructions ci-dessous:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">sudo</span> apt-get <span class="kw">install</span> happy ghc
+$ <span class="kw">wget</span> http://tahiti.prism.uvsq.fr/jtiger/static/support/havm-0.25.tar.bz2
+$ <span class="kw">tar</span> xjf havm-0.25.tar.bz2
+$ <span class="kw">cd</span> havm-0.25/
+$ ./configure
+$ <span class="kw">make</span> 
+$ <span class="kw">sudo</span> <span class="kw">make</span> <span class="kw">install</span> </code></pre>
+<p>Si tout se passe bien vous devez pouvoir executer,</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ havm 
+Usage: havm [OPTIONS] INPUT-FILE</code></pre>
+<p>HAVM est un simulateur open-source pour la représentation intermédiaire Tiger maintenu par l’équipe du LRDE à l’Epita. La documentation est disponible à l’adresse <a href="http://www.lrde.epita.fr/~akim/ccmp/doc/havm.html"><code class="url">http://www.lrde.epita.fr/~akim/ccmp/doc/havm.html</code></a>.</p>
+<p>HAVM permet de simuler l’exécution de code IR. Par exemple,</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">echo</span> <span class="st">&quot;print_int(21*2)&quot;</span> <span class="kw">&gt;</span> test1.tig 
+$ java jtiger.cli.Compile -h test1.tig <span class="kw">&gt;</span> test1.ir
+$ havm test1.ir
+42</code></pre>
+<h2 id="comment-sera-noté-votre-projet"><a href="#TOC">Comment sera noté votre projet</a></h2>
+<p>Le barème est le suivant:</p>
+<ul>
+<li>Qualité du code: <strong>5 points</strong>
+<ul>
+<li>code bien commenté et structuré</li>
+<li>projet rendu avec un ensemble de tests (au minimum 20 par groupe)</li>
+<li>projet rendu avec un README qui détaille ce qui est implémenté</li>
+</ul></li>
+<li>Soutenance : <strong>5 points</strong></li>
+<li>Correction du code: <strong>8 points</strong></li>
+<li>Qualité de la traduction: <strong>2 points</strong>
+<ul>
+<li>Est-ce que les optimizations décrites en cours pour la traduction des expressions conditionnelles ont été implémentées.</li>
+<li>Est-ce que d’autres optimizations ont été implémentées (par exemple Constant Folding ?)</li>
+</ul></li>
+</ul>
+<p>La correction du code sera évaluée par un script de manière automatique. Attention assurez vous que les étapes suivantes marchent pour votre rendu. Si votre projet nécessite une intervention manuelle de ma part car vous n’avez pas respecté les consignes, vous serez pénalisés.</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">tar</span> xvf nom1-nom2-projet-compil-13.tar.gz
+$ <span class="kw">cd</span> nom1-nom2-projet-compil-13/
+$ ant clean
+$ ant
+$ java jtiger.cli.Compile -h ../secret-tests/test001.tig <span class="kw">&gt;</span> ../secret-tests/test001.ir
+$ havm ../secret-tests/test001.ir <span class="kw">&gt;</span> ../secret-tests/test001.output
+$ <span class="kw">diff</span> ../secret-tests/test001.output ../secret-tests/test001.expected</code></pre>
+<p>Votre projet sera compilé et exécuté sur un ensemble de 140 tests. Votre note sera calculée avec la formule suivante: <code>nombre de tests passés/140*8</code>.</p>
+<p>Attention votre projet sera exécuté avec la commande <code>java jtiger.cli.Compile -h &lt;entree.tig&gt;</code>. La sortie doit être du code IR légal que HAVM peut executer.</p>
+<p>Les tests ne vous seront pas fournis cette fois ci. C’est à vous d’en écrire durant le développement du projet. Les tests doivent être inclus dans l’archive de rendu de projet dans le répertoire <code>tests/</code>. Pour chaque test vous devez inclure trois fichiers:</p>
+<ul>
+<li>le programme tiger (<code>test???.tig</code>)</li>
+<li>la sortie IR attendue (<code>test???.ir</code>)</li>
+<li>la sortie HAVM attendue (<code>test???.expected</code>)</li>
+</ul>
+<h2 id="bonus"><a href="#TOC">Bonus</a></h2>
+<p>Si vous avez tout fini avant la date de rendu et vous souhaitez aller plus loin dans le compilateur, envoyez moi un mail.</p>
+</body>
+</html>
