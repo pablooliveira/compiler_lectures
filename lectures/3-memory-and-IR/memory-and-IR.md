@@ -18,19 +18,23 @@ Stratégie: utiliser les registres le plus possible
 * Si les registres viennent à manquer les variables sont temporairement stockées sur la pile
 * Certaines variables *doivent* être stockées sur la pile
 
+## Organisation de la pile (Tiger)
+
+\includegraphics[width=4in]{img/pile-tiger.pdf}
+
 ## Variables qui échappent
 
-* On dit qu'une variable échappe lorsqu'elle peut être accédée en dehors de son scope.
+* On dit qu'une variable échappe lorsqu'elle peut être accédée en dehors de sa portée.
 
 ~~~
-    function bar() : int = 
+    function f1() : int = 
         let 
-            /* a est locale dans bar() ...   */
+            /* a est locale dans f1() ...   */
             var a := 42                
-            /* ... mais accédée depuis foo() */
-            function foo() : int = a = a + 1 
+            /* ... mais accédée depuis f2() */
+            function f2() = a := a + 1 
         in 
-            foo() ; a
+            f2() ; a
         end
 ~~~
 
@@ -45,58 +49,58 @@ Stratégie: utiliser les registres le plus possible
 * Un visiteur d'arbre compare pour chaque variable la profondeur de sa
   déclaration et de son utilisation
 
-* Une variable déclarée dans une autre fonction échappe. 
+* Une variable déclarée à une profondeur différente échappe 
 
 ## Gestion mémoire des variables échappées
 
-* Le compilateur passe un paramètre supplémentaire spécial _static link_ à
+* Le compilateur rajoute un paramètre supplémentaire spécial _static link_ à
   chaque fonction.
 
-* Le _static link_ pointe vers le frame pointer de l'appelant supérieur.
+* Le _static link_ pointe vers le frame pointer de la fonction contenante.
 
-* Il permet à l'appelé d'accéder aux variables dans la pile de l'appelant.
+* Il permet au contenu d'accéder aux variables dans la pile du conteneur.
 
 ## Comment remonter plusieurs scopes ?
 
 ~~~
-    function bar() : int = 
+    function f1() : int = 
         let 
             var a := 42           
-            function foo() : int = 
-                let function baz() : int = a = a + 1 
-                in baz() end
+            function f2() = 
+                let function f3() = a := a + 1 
+                in f3() end
         in 
-            foo() ; a
+            f2() ; a
         end
 ~~~
 
-* Ici on doit remonteur deux niveaux d'appel.
-* Chaque fonction stocke le _static link_ de son père sur sa pile.
-* La fonction ``baz()`` peut donc remonter la chaîne de _static link_ pour
-  accéder à ``a`` dans ``bar()``. 
+* Ici on doit remonteur deux niveaux d'imbrication.
+* Chaque fonction stocke le _static link_ de la fonction contenante sur sa pile.
+* La fonction ``f3()`` peut donc remonter la chaîne de _static link_ pour
+  accéder à ``a`` dans ``f1()``. 
 
 ## Attention: le static link est _Statiquement_ calculé
 
 ~~~ 
-1   function bar() : int = 
+1   function f1() : int = 
 2      let 
 3          var a := 42
-4          function foo( b : int ) : int = 
-5             if b = 0 then a else foo(b-1) + a
+4          function f2( b : int ) : int = 
+5             if b = 0 then a else f2(b-1) + a
 6      in
-7          foo(10)
+7          f2(10)
 8      end
 ~~~
 
-* L'appel ``foo(10)`` en ligne 6 est remplacé par ``foo(sl_bar, 10)``
-* L'appel ``foo(b-1)`` en ligne 6 est remplacé par ``foo(sl_bar, 10)`` et non
-  pas ``foo(sl_foo, 10)``. Pourquoi ? 
+* L'appel ``f2(10)`` en ligne 7 est remplacé par ``f2(fp, 10)``
+* L'appel ``f2(b-1)`` en ligne 5 est remplacé par ``f2(MEM(fp), 10)`` et non
+  pas ``f2(fp, 10)``. Pourquoi ? 
 
 ## Calcul du Static link
 
-* On calcule ``d = profondeur(appel) - profondeur (appellé)``
-* Si $d <= 0$, alors on passe notre Static Link
-* Si $d > 0$, alors on remonte $d$ Static Links
+* ``d = profondeur(appel) - profondeur (appellé)``
+* si $d < 0$, alors on passe notre SL.
+* Si $d >= 0$, alors on remonte $d+1$ SL
 
 \small
 
@@ -104,17 +108,17 @@ Stratégie: utiliser les registres le plus possible
 f1() {
     f2() {
         f3() {
-            f1() ---> niveau 3 appele niveau 1, 3-1 = 2
-        }             on remonte 2 niveau de static link
-    }                 sl = MEM(MEM(fp))
+            f1() ---> niveau 3 appele niveau 1, d = 2
+        }             3 niveaux à remonter
+    }                 sl = MEM(MEM(MEM(fp)))
 
-    f1()         ---> niveau 1 appele niveau 1, 1-1 <= 0
-                      pas de niveau à remonter
-                      sl = fp
+    f1()         ---> niveau 1 appele niveau 1, d = 0
+                      1 niveau à remonter
+                      sl = MEM(fp)
 
-    f2()         ---> niveau 1 appelle niveau 2, 1-2 <= 0
+    f2()         ---> niveau 1 appelle niveau 2, d < 0
                       pas de niveau à remonter
-                      sl = fp
+}                     sl = fp
 ~~~
 
 ## Exercice
@@ -122,27 +126,68 @@ f1() {
 * Quels static links sont passés pour chaque appel de fonction ?
 
 ~~~
-1    function top() : int =
+1    function f1() : int =
 2    let 
 3        var a := 41
-3        function bar() : int = 
-4            let 
-5               var a := a + 1           
-6                function foo() : int = 
-7                    let function baz() : int = a = a + 1 
-8                    in baz(); if a < 100 then bar() end
-9            in 
-10               foo() ; a
-11           end
-12  in
-13       bar()
-14   end
+4        function f2() : int = 
+5            let 
+6                function f3() : int = 
+7                    let function f4() = 
+8                       a := 0 
+9                    in f4();     
+10                      f2() end
+11            in 
+12               f2(); 
+13               a
+14           end
+15   in
+16       f2()
+17   end
 ~~~
 
-## Organisation de la pile (Tiger)
+## À quelle adresse mémoire aller chercher a ? 
 
-\includegraphics[width=4in]{img/pile-tiger.pdf}
+~~~
+1    function f1() : int =
+2    let 
+3        var a := 41
+4        function f2() : int = 
+5            let 
+6                function f3() : int = 
+7                    let function f4() = 
+8                       a := 0  
+9                    in f4(fp);              # 3 - 4 < 0 
+10                      f2(MEM(MEM(fp))) end # 3 - 2 = 1
+11            in 
+12                 f2(MEM(fp));              # 2 - 2 = 0 
+13                 a        
+14           end
+15   in
+16       f2(fp)                              # 1 - 2 < 0 
+17   end
+~~~
 
+## A quelle adresse mémoire aller chercher a ? 
+
+~~~
+1    function f1() : int =
+2    let 
+3        var MEM[FP-4] := 41            <---------.  <--.
+4        function f2() : int =                    |     |
+5            let                                  |     |    
+6               function f3() : int =             |     |
+7                    let function f4() =          |     |
+8        MEM[(MEM(MEM(MEM(fp)))-4] := 0 #---------'     | 
+9                    in f4(fp);                         |
+10                      f2(MEM(MEM(fp))) end            |
+11            in                                        |
+12               f2(MEM(fp));                           |
+13               MEM[(MEM(fp)-4)] + 1 #-----------------'
+14           end
+15   in
+16       f2(fp) 
+17   end
+~~~
 
 ## Tableaux et structures
 
@@ -175,12 +220,12 @@ f1() {
 * Si la variable échappe, on sait qu'elle ira sur la pile.
 
     * L'objet ``Frame`` réserve une case dans la pile pour stocker la variable
-    * ``Access.getSxp(Sxp fp)`` retourne une expression de type ``Mem(Binop(+, fp, Const(position))`` 
+    * ``Access.getExp(Exp fp)`` retourne une expression de type ``Mem(Binop(-, fp, Const(position))`` 
 
-* Si la variable n'échappe pas, on ne sait pas.
+* Si la variable n'échappe pas, on ne sait pas encore.
 
     * L'objet ``Frame`` crée un nom unique, par exemple, ``t127``.
-    * ``Access.getSxp(Sxp fp)`` retourne une expression de type ``TempSxp(t127)``
+    * ``Access.getExp(Exp fp)`` retourne une expression de type ``TempExp(t127)``
     * L'allocateur de registre choisira de stocker ``t127`` dans un vrai registre ou sur la pile. 
 
 ## Généricité
@@ -214,8 +259,6 @@ f1() {
     * Oui: facilite l'analyse de dépendances
     * Non: complique la propagation de constantes, la réduction de force, etc.
       
-(cf. Présentation de A. Demaille)
-
 ## Tree
 
  * Langage intermédiaire sous forme d'arbre
@@ -225,20 +268,22 @@ f1() {
 ## Grammaire de Tree
 
 ~~~
-Sxp ::= "Const" int
-      | "Name" Label
-      | "TempSxp" Temp
-      | "Binop" Oper Sxp Sxp
-      | "Mem" Sxp
-      | "Call" Sxp [{Sxp}]
-      | "ESeq" Stm Sxp
+Exp ::= "const" int
+      | name 
+      | "temp" Temp
+      | "binop" Oper Exp Exp
+      | "mem" Exp
+      | "call" name [{Exp}]
+      | "eseq" Stm Exp
 
-Stm ::= "Move" Sxp Sxp
-      | "Sxp" Sxp
-      | "Jump" Sxp [{Label}]
-      | "Cjump" Relop Exp Exp Label Label
-      | "Seq" [{Stm}]
-      | "Label" Label
+Stm ::= "move" Exp Exp
+      | "sxp" Exp
+      | "jump" name
+      | "cjump" Relop Exp Exp name name
+      | "seq" [{Stm}]
+      | "label" Label
+
+name ::= "name" Label
 Oper ::= "+" | "-" | "*" | "/"
 Relop ::= "=" | "<>" | "<=" | ">=" | "<" | ">"
 ~~~
@@ -347,14 +392,14 @@ Au lieu de faire la traduction directement on retourne des coquilles, où ``Shel
 * Nx Statement Shell, retarde un statement 
 * Cx Condition Shell, retarde un test conditionnel
 
-
 \small
 
-              unNx                  unEx                            unCx(t,f)
+              unNx                  unEx                             unCx(t,f)
 -------     --------------------- -------------------------------- -----------------------
 Ex(e)         sxp(e)                e                                cjump(<>, e, 0, t, f)
 Cx(a<b)       seq(sxp(a), sxp(b)    eseq(t $\leftarrow$ (a<b), t)    cjump(<, a, b, t, f)
 Nx(s)         s                     error                            error
+
 
 ## Traduction While
 
