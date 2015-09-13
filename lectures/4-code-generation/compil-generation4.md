@@ -7,16 +7,16 @@
 
 * Le RI Tree possède encore quelques expressions difficiles à traduire en assembleur
     * Première phase: passage en forme canonique. On simplifie encore la RI
-    * Deuxième phase: génération d'instructions  
+    * Deuxième phase: génération d'instructions
 
-# Forme canonique 
+# Forme canonique
 ## Problèmes avec la RI haut-niveau (1/3)
 
-* ``CJUMP`` a deux labels. Assembleur ``beq .lab1`` a un seul label.  
+* ``CJUMP`` a deux labels. Assembleur ``beq .lab1`` a un seul label.
 
 ~~~
     # Ne peut pas être traduit en un seul beq.
-    CJUMP = a b tlab flab 
+    CJUMP = a b tlab flab
 
     cmp a b
     beq tlab
@@ -39,8 +39,8 @@
 
 ~~~
     MOVE (TEMP t1) (CONST 0)
-    BINOP + 
-        ESEQ 
+    BINOP +
+        ESEQ
             MOVE (TEMP t1) (CONST 42)
             TEMP t2
         TEMP t1
@@ -57,7 +57,7 @@
 ~~~
     MOVE (TEMP t1) (CONST 0)
     MOVE (TEMP t1) (CONST 42)
-    BINOP + 
+    BINOP +
         TEMP t2
         TEMP t1
 ~~~
@@ -66,15 +66,15 @@
 
 ## Problèmes avec la RI haut-niveau (3/3)
 
-* ``CALL`` dans les paramètres d'un ``CALL``
+* ``CALL`` imbriqués dans la même expression
 
 ~~~
-    BINOP (+, (CALL foo CONST 0), (CALL foo CONST 1)) 
+    BINOP (+, (CALL foo CONST 0), (CALL foo CONST 1))
 ~~~
 
 * Les deux ``CALL`` retournent leur résultat dans le même registre physique.
-* Problématique, car le résultat du premier ``CALL`` sera écrasé par le dernier 
-  ``CALL`` avant utilisation. 
+* Problématique, car le résultat du premier ``CALL`` sera écrasé par le dernier
+  ``CALL`` avant utilisation.
 
 ## Problèmes avec la RI haut-niveau (3/3)
 
@@ -83,10 +83,10 @@
     * soit un nœud ``MOVE(TEMP t, CALL)``
 
 ~~~
-    MOVE 
+    MOVE
         TEMP t1
         CALL foo
-            CONST 0 
+            CONST 0
     MOVE
         TEMP t2
         CALL foo
@@ -99,23 +99,23 @@
 * Un arbre RI est **canonique** ssi il a les propriétés:
     * Les nœuds CJUMP sont toujours directement suivis par le label false.
     * Pas de nœuds ``ESEQ``
-    * Le père d'un ``CALL`` est soit un ``SXP`` soit un ``MOVE(TEMP t, ...)`` 
+    * Le père d'un ``CALL`` est soit un ``SXP`` soit un ``MOVE(TEMP t, ...)``
 
 * On utilise un ensemble de règles de réécriture
-    
+
 ## Règles de réécriture pour les ESEQ (1/3)
 
 * On fait remonter les ESEQ en haut de l'arbre
 
 ~~~
-(1) 
-ESEQ(s1, ESEQ(s2, e))      => ESEQ(SEQ(s1,s2), e) 
+(1)
+ESEQ(s1, ESEQ(s2, e))      => ESEQ(SEQ(s1,s2), e)
 
-(2) 
+(2)
 BINOP(op, ESEQ(s,e1), e2)  => ESEQ(s, BINOP(op, e1, e2))
 MEM(ESEQ(s,e1))            => ESEQ(s, MEM(e1))
-CJUMP(op, ESEQ(s,e1), e2,  => SEQ(s, CJUMP(op, e1, e2,  
-      tlab, flab)                          tlab, flab)) 
+CJUMP(op, ESEQ(s,e1), e2,  => SEQ(s, CJUMP(op, e1, e2,
+      tlab, flab)                          tlab, flab))
 
 ~~~
 
@@ -123,14 +123,14 @@ CJUMP(op, ESEQ(s,e1), e2,  => SEQ(s, CJUMP(op, e1, e2,
 ## Règles de réécriture pour les ESEQ (2/3)
 
 ~~~
-(3) 
+(3)
 BINOP(op, e1, ESEQ(s, e2)) => ESEQ(MOVE(TEMP t, e1),
-                                ESEQ(s, BINOP(op, e1, t))) 
+                                ESEQ(s, BINOP(op, e1, t)))
 
 
-(4) 
-CJUMP(op, e1, ESEQ(s,e2),  => SEQ(MOVE(TEMP t, e1), 
-    tlab, flab)                 SEQ(s, CJUMP(op, t, e2, 
+(4)
+CJUMP(op, e1, ESEQ(s,e2),  => SEQ(MOVE(TEMP t, e1),
+    tlab, flab)                 SEQ(s, CJUMP(op, t, e2,
                                              tlab, flab)))
 ~~~
 
@@ -141,17 +141,17 @@ CJUMP(op, e1, ESEQ(s,e2),  => SEQ(MOVE(TEMP t, e1),
 ## Règles de réécriture pour les ESEQ (3/3)
 
 * Cas commutatif, ``s`` et ``e1`` commutent:
-    * L'évaluation ``s,e1`` et ``e1,s`` est équivalente 
+    * L'évaluation ``s,e1`` et ``e1,s`` est équivalente
 
 ~~~
-(3') 
-BINOP(op, e1, ESEQ(s, e2)) => ESEQ(s, BINOP(op, e1, e2))) 
+(3')
+BINOP(op, e1, ESEQ(s, e2)) => ESEQ(s, BINOP(op, e1, e2)))
 
-                                 
-(4') 
-CJUMP(op, e1, ESEQ(s,e2),  => SEQ(s, CJUMP(op, e1, e2,    
-    tlab, flab)                          tlab, flab)))    
-                                      
+
+(4')
+CJUMP(op, e1, ESEQ(s,e2),  => SEQ(s, CJUMP(op, e1, e2,
+    tlab, flab)                          tlab, flab)))
+
 ~~~
 
 ## Commutativité
@@ -160,16 +160,16 @@ CJUMP(op, e1, ESEQ(s,e2),  => SEQ(s, CJUMP(op, e1, e2,
     * Une constante commute avec toute autre expression
     * Le statement vide commute avec toute autre expression
 
-* Des méthodes plus avancés existent, mais requièrent une analyse plus 
+* Des méthodes plus avancés existent, mais requièrent une analyse plus
   poussée
 
-## Élimination des ESEQ 
+## Élimination des ESEQ
 
 * En appliquant récursivement les règles de réécriture on sort les ESEQ qui
   sont à l'intérieur d'autres expressions. Le patron général est:
 
 ~~~
-    NOEUD(e1,e2, ..., ESEQ(s, ek), ..., ek+1, ek+2, ...) 
+    NOEUD(e1,e2, ..., ESEQ(s, ek), ..., ek+1, ek+2, ...)
 
 =>
 
@@ -197,17 +197,17 @@ et  SXP (ESEQ(s, e)) => SEQ(s, SXP(e))
 
 ## Réécriture des CALL
 
-* Pour réécrire les ``CALL`` on utilise des règles similaires aux règles pour les ``ESEQ``. 
+* Pour réécrire les ``CALL`` on utilise des règles similaires aux règles pour les ``ESEQ``.
 
 ~~~
-    BINOP(+, CALL(...), CALL(...)) 
-=> 
+    BINOP(+, CALL(...), CALL(...))
+=>
     MOVE(TEMP t1, CALL(...))
     MOVE(TEMP t2, CALL(...))
-    BINOP(+, t1, t2) 
+    BINOP(+, t1, t2)
 ~~~
 
-## Réécriture des CMOVE
+## Réécriture des CJUMP
 
 * Partition en **Basic Blocks**
     * Un *basic block* est une séquence de statements qui:
@@ -217,7 +217,7 @@ et  SXP (ESEQ(s, e)) => SEQ(s, SXP(e))
     * L'exécution d'un basic block n'est donc jamais interrompue par un saut
 
 * On décompose chaque fonction en *basic blocks*
-    * L'algorithme est simple à chaque label rencontré on commence un nouveau basic block
+    * L'algorithme est simple: à chaque label rencontré on commence un nouveau basic block
     * à chaque JUMP/CJUMP rencontré on finit le basic block.
     * On rajoute un faux label aux basic blocks sans label au début
     * On rajoute un faux jump vers la fin de la fonction au dernier basic block
@@ -225,7 +225,7 @@ et  SXP (ESEQ(s, e)) => SEQ(s, SXP(e))
 ## Ordonnancement des traces
 
 * Les basics blocs peuvent être réorganisés dans un ordre quelconque sans
-  changer la sémantique d'une fonction. 
+  changer la sémantique d'une fonction.
 
 * On veut que chaque CJUMP soit suivi d'un des label cible. Sinon il faut
   introduire des JUMP supplémentaires:
@@ -246,18 +246,18 @@ et  SXP (ESEQ(s, e)) => SEQ(s, SXP(e))
 
 ~~~
     BB1 CJUMP (BB1) (BB3)
-    BB2 CJUMP (BB4) (END)
+    BB2 CJUMP (END) (BB4)
     BB3 JUMP  (BB2)
-    BB4 CJUMP (BB2) (BB3)
+    BB4 CJUMP (BB3) (BB2)
 
     =>
 
     BB1 CJUMP (BB1) (F3)
     F3  JUMP (BB3)
-    BB2 CJUMP (F4) (END)
+    BB2 CJUMP (END) (F4)
     F4  JUMP (BB4)
     BB3 JUMP (BB2)
-    BB4 CJUMP (F2) (BB3) 
+    BB4 CJUMP (BB3) (F2)
     F2  JUMP (BB2)
 ~~~
 
@@ -268,35 +268,35 @@ et  SXP (ESEQ(s, e)) => SEQ(s, SXP(e))
 ~~~
     BB1 CJUMP (BB1) (BB3)
     BB3 JUMP  (BB2)
-    BB2 CJUMP (BB4) (END)
+    BB2 CJUMP (END) (BB4)
     BB4 CJUMP (BB2) (BB3)
 
     =>
 
     BB1 CJUMP (BB1) (BB3)
-    BB3 JUMP (BB2)            
-    BB2 CJUMP (BB4) (END)     
-    BB4 CJUMP (F2) (BB3) 
-    F2  JUMP (BB2)
+    BB3 JUMP (BB2)
+    BB2 CJUMP (END) (BB4)
+    BB4 CJUMP (BB2) (F3)
+    F3  JUMP (BB3)
 
 ~~~
 
 ## Ordonnancement des traces (Exemple)
 ~~~
     BB1 CJUMP (BB1) (BB3)
-    BB3 JUMP (BB2)            <- Ce JUMP est inutile 
-    BB2 CJUMP (BB4) (END)     et peut-être éliminé
-    BB4 CJUMP (F2) (BB3) 
-    F2  JUMP (BB2)
+    BB3 JUMP (BB2)            <- Ce JUMP est inutile
+    BB2 CJUMP (END) (BB4)     et peut-être éliminé
+    BB4 CJUMP (BB2) (F3)
+    F3  JUMP (BB3)
 
 
     =>
 
     BB1 CJUMP (BB1) (BB3)
-    BB3 
-    BB2 CJUMP (BB4) (END)     et peut-être éliminé
-    BB4 CJUMP (F2) (BB3) 
-    F2  JUMP (BB2)
+    BB3
+    BB2 CJUMP (END) (BB4)     et peut-être éliminé
+    BB4 CJUMP (BB2) (F3)
+    F3  JUMP (BB3)
 ~~~
 
 ## Comment trouver un bon ordre
@@ -362,15 +362,15 @@ s'écrit en deux instructions si le label ``flab`` suit immédiatement le CJUMP.
     mem2  [label="mem"];
     times1 [label="*"];
     plus2 [label="+"];
-    tempfp1 [label="temp fp"]; 
+    tempfp1 [label="temp fp"];
     consta [label="const a"];
     tempi [label="temp i"];
     const4 [label="const 4"];
-    
+
 
     mem3  [label="mem"];
     plus3 [label="+"];
-    tempfp2 [label="temp fp"]; 
+    tempfp2 [label="temp fp"];
     constx [label="const x"];
 
     move1 -> mem1;
@@ -419,10 +419,10 @@ add r1, r2, \#?
 ~~~
 ~~~dot 3cm
     plus [label="+"];
-    n1 [label="const ?"];
-    n2 [label="?"];
-    plus -> n2;
+    n2 [label="const ?"];
+    n1 [label="?"];
     plus -> n1;
+    plus -> n2;
 ~~~
 
 }
@@ -509,7 +509,7 @@ str r1, [r2, r3]
 }
 
 
- 
+
 
 
 
@@ -526,15 +526,15 @@ str r1, [r2, r3]
     mem2  [label="mem"];
     times1 [label="*"];
     plus2 [label="+"];
-    tempfp1 [label="temp fp"]; 
+    tempfp1 [label="temp fp"];
     consta [label="const a"];
     tempi [label="temp i"];
     const4 [label="const 4"];
-    
+
 
     mem3  [label="mem"];
     plus3 [label="+"];
-    tempfp2 [label="temp fp"]; 
+    tempfp2 [label="temp fp"];
     constx [label="const x"];
 
 
@@ -568,15 +568,15 @@ str r1, [r2, r3]
     mem2  [label="mem"];
     times1 [label="*"];
     plus2 [label="+"];
-    tempfp1 [label="temp fp"]; 
+    tempfp1 [label="temp fp"];
     consta [label="const a"];
     tempi [label="temp i"];
     const4 [label="const 4"];
-    
+
 
     mem3  [label="mem", color="blue"];
     plus3 [label="+", color="blue"];
-    tempfp2 [label="temp fp", color="blue"]; 
+    tempfp2 [label="temp fp", color="blue"];
     constx [label="const x", color="blue"];
 
     move1 -> mem1 [color="red"];
@@ -612,15 +612,15 @@ str r1, [r2, r3]
     mem2  [label="mem"];
     times1 [label="*", color="green"];
     plus2 [label="+"];
-    tempfp1 [label="temp fp"]; 
+    tempfp1 [label="temp fp"];
     consta [label="const a"];
     tempi [label="temp i", color="green"];
     const4 [label="const 4", color="green"];
-    
+
 
     mem3  [label="mem", color="blue"];
     plus3 [label="+", color="blue"];
-    tempfp2 [label="temp fp", color="blue"]; 
+    tempfp2 [label="temp fp", color="blue"];
     constx [label="const x", color="blue"];
 
     move1 -> mem1 [color="red"];
@@ -648,7 +648,7 @@ str r1, [r2, r3]
 ## Problème: Comment recouvrir l'arbre avec les tuiles ?
 * Traduction = Recouvrir l'arbre avec les tuiles élémentaires.
 
-~~~dot 10cm
+~~~dot 8cm
     move1 [label="move", color="red"];
 
     mem1  [label="mem", color="red"];
@@ -657,15 +657,15 @@ str r1, [r2, r3]
     mem2  [label="mem", color="orange"];
     times1 [label="*", color="green"];
     plus2 [label="+", color="orange"];
-    tempfp1 [label="temp fp", color="orange"]; 
+    tempfp1 [label="temp fp", color="orange"];
     consta [label="const a", color="orange"];
     tempi [label="temp i", color="green"];
     const4 [label="const 4", color="green"];
-    
+
 
     mem3  [label="mem", color="blue"];
     plus3 [label="+", color="blue"];
-    tempfp2 [label="temp fp", color="blue"]; 
+    tempfp2 [label="temp fp", color="blue"];
     constx [label="const x", color="blue"];
 
     move1 -> mem1 [color="red"];
@@ -692,7 +692,7 @@ str r1, [r2, r3]
     i4 -> i3;
 ~~~
 
-## Optimalité ? 
+## Optimalité ?
 
 * Plusieurs recouvrements sont possibles.
 * Objectif: minimiser le coût du programme final.
@@ -717,7 +717,7 @@ str r1, [r2, r3]
 ## Programmation Dynamique:
 
 * Maximal Munch ne trouve pas nécessairement l'optimum.
-* Pour trouver l'optimum global, on peut utiliser des algorithmes de 
+* Pour trouver l'optimum global, on peut utiliser des algorithmes de
   programmation dynamique comme BURG.
 
 * CW Fraser - 1992 Fast Optimal Instruction Selection and Tree Parsing
@@ -726,12 +726,12 @@ str r1, [r2, r3]
 
 ~~~
 temp = PLUS(temp a, temp b): 1 {
-    return GenHelpers.arithmetic(inst, 
+    return GenHelpers.arithmetic(inst,
         "add <d>, <s>, <s>", a, b);
 }
 
 temp = PLUS(iconst a, temp b): 1 {
-    return GenHelpers.arithmetic(inst, 
+    return GenHelpers.arithmetic(inst,
         "add <d>, <s>, #" + a, b);
 }
 
