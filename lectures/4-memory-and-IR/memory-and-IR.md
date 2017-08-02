@@ -78,6 +78,7 @@ Stratégie: utiliser les registres le plus possible
 * Chaque fonction stocke le _static link_ de la fonction contenante sur sa pile.
 * La fonction ``f3()`` peut donc remonter la chaîne de _static link_ pour
   accéder à ``a`` dans ``f1()``. 
+(Dessin au tableau)
 
 ## Attention: le static link est _Statiquement_ calculé
 
@@ -93,8 +94,8 @@ Stratégie: utiliser les registres le plus possible
 ~~~
 
 * L'appel ``f2(10)`` en ligne 7 est remplacé par ``f2(fp, 10)``
-* L'appel ``f2(b-1)`` en ligne 5 est remplacé par ``f2(MEM(fp), 10)`` et non
-  pas ``f2(fp, 10)``. Pourquoi ? 
+* L'appel ``f2(b-1)`` en ligne 5 est remplacé par ``f2(MEM(fp), b-1)`` et non
+  pas ``f2(fp, b-1)``. Pourquoi ? 
 
 ## Calcul du Static link
 
@@ -145,7 +146,7 @@ f1() {
 17   end
 ~~~
 
-## À quelle adresse mémoire aller chercher a ? 
+## Quels static links sont passés ?
 
 ~~~
 1    function f1() : int =
@@ -160,12 +161,36 @@ f1() {
 10                      f2(MEM(MEM(fp))) end # 3 - 2 = 1
 11            in 
 12                 f2(MEM(fp));              # 2 - 2 = 0 
-13                 a        
+13                 a
 14           end
 15   in
 16       f2(fp)                              # 1 - 2 < 0 
 17   end
 ~~~
+
+## A quelle adresse mémoire aller chercher a ? 
+
+~~~
+1    function f1() : int =
+2    let 
+3        var a := 41
+4        function f2() : int = 
+5            let 
+6                function f3() : int = 
+7                    let function f4() = 
+8                       a := 0  
+9                    in f4(fp);               
+10                      f2(MEM(MEM(fp))) end 
+11            in 
+12                 f2(MEM(fp));               
+13                 a
+14           end
+15   in
+16       f2(fp)                               
+17   end
+~~~
+
+
 
 ## A quelle adresse mémoire aller chercher a ? 
 

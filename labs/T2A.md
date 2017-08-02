@@ -4,7 +4,7 @@ Projet JTiger : TD 2A
 Mise en place
 -------------
 
-Récupérez et décompressez l'archive contenant le code fourni pour ce livrable <http://tahiti.prism.uvsq.fr/jtiger/static/support/livrable-T2A.zip>.
+Récupérez et décompressez l'archive contenant le code fourni pour ce livrable <http://tahiti.prism.uvsq.fr/tigergrader/static/support/livrable-T2A.zip>.
 
 Un fichier build.xml (équivalent d'un Makefile) est inclus.
 Pour compiler les sources tapez :
@@ -194,7 +194,6 @@ arithmétiques et logiques, il est décrit par la grammaire suivante:
        | exp op exp
        | ( exp )
      
-     exps ::= [ exp { ; exp } ]
      op ::= + | - | * | / | = | <> | > | < | >= | <= | & | |
 ~~~
  

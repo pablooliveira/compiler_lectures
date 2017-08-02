@@ -4,7 +4,7 @@ Projet JTiger : TD 2B
 Mise en place
 -------------
 
-Récupérez et décompressez l'archive contenant le code fourni pour ce livrable <http://tahiti.prism.uvsq.fr/jtiger/static/support/livrable-T2B.zip>.
+Récupérez et décompressez l'archive contenant le code fourni pour ce livrable <http://tahiti.prism.uvsq.fr/tigergrader/static/support/livrable-T2B.zip>.
 
 Un fichier build.xml (équivalent d'un Makefile) est inclus.
 Pour compiler les sources tapez :
@@ -97,7 +97,7 @@ va produire l'arbre suivant:
           IntegerExp [pos='1:12' _typeDefinition='null' value='5']
 ~~~
 
-<img src="ast.png" height="300px">
+<img src="/tigergrader/static/support/ast.png" height="300px">
 
 Le noeud racine est de type SeqExp et correspond à la concatenation
 de plusieurs expressions. Ici les deux expressions filles, sont de

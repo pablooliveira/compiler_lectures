@@ -1,57 +1,37 @@
-Projet Compilation 2015
+Projet Compilation 2017
 =======================
-
-![](tiger.jpg "Tigre qui Marche -- Antoine-Louis Barye")
 
 Pablo Oliveira <pablo.oliveira@uvsq.fr>
 
 Ce document décrit l'objectif, l'organisation et la notation du projet de
-compilation.
-
-Une version PDF de ce document est disponible à l'adresse
-<http://tahiti.prism.uvsq.fr/compil/Projet.pdf>.
-
-## Organisation du projet
-### Constitution des Groupes
-
-Merci de vous constituer en groupes de 4 personnes et d'envoyer un mail sur la
-liste iatic4-compil avec la liste des membres du groupe avant le mercredi 17
-mars.
-
-* Groupe 1: git clone ssh://gitolite@tahiti.prism.uvsq.fr/compil1
-
-* Groupe 2: git clone ssh://gitolite@tahiti.prism.uvsq.fr/compil2
-
-* Groupe 3: git clone ssh://gitolite@tahiti.prism.uvsq.fr/compil3
-
-* Groupe 4: git clone ssh://gitolite@tahiti.prism.uvsq.fr/compil4
-
-* Groupe 5: git clone ssh://gitolite@tahiti.prism.uvsq.fr/compil5
-
-* Groupe 6: git clone ssh://gitolite@tahiti.prism.uvsq.fr/compil6
-
-* Groupe 7: git clone ssh://gitolite@tahiti.prism.uvsq.fr/compil7
+compilation. Cette année il y a deux sujets au choix: le premier sujet consiste
+à implémenter l'étape d'analyse syntaxique du langage Tiger; le deuxième sujet 
+consiste à implémenter l'étape de traduction en représentation intermédiaire.
 
 ### Rendu
 
-Le projet est à rendre avant le mercredi 6 mai à 13:00.  Le rendu du projet se
-fait à travers des dépôt gits sur `tahiti.prism.uvsq.fr`.  Chaque groupe
-possède un dépôt git propre nommé `compilX` où `X` est le numéro de groupe.
+Le projet est à rendre avant le 19 mai à 23:59.  Le rendu du projet se fait par
+envoi de mail avec une archive ".zip". Attention à respecter strictement les
+règles suivantes.  Le nom respect des règles entrainera un malus de 2 points
+sur la note finale du projet.
 
-Les dépôts gits s'utilisent comme dans le module Système. Le groupe 1 par exemple,
-utilisera la commande suivante pour cloner son dépôt:
+* Le sujet du mail sera "[Projet CO sujet 1] nom1enminuscules" pour le sujet 1 ou
+  "[Projet CO sujet 2] nom1enminuscules nom2enminuscules" pour le sujet 2. 
 
-```bash
-git clone ssh://gitolite@tahiti.prism.uvsq.fr/compil1
-```
+* Le mail contiendra en PJ l'archive ".zip". Le nom de l'archive sera `sujet1-nom1enminuscules.zip` 
+  ou `sujet2-nom1enminuscules-nom2enminuscules.zip`.
 
+* Lors de la décompression de l'archive, tous les fichiers seront au sein d'un répertoire nommé
+  exactement comme l'archive sans le suffixe ".zip". 
+ 
 ### Questions
 
 Les questions sont encouragées sur le groupe de discussion
-<https://groups.google.com/group/iatic4-compil/> Les questions sont fortement
-encouragées. J'essayerai de lire les messages et répondre à vos questions
-régulièrement. Mais la participation de tous est encouragée: n'hésitez pas à
-répondre aux questions de vos camarades, c'est le meilleur moyen d'apprendre!
+<https://groups.google.com/group/iatic4-compil/> auquel vous pouvez vous
+inscrire.  Les questions sont fortement encouragées. J'essayerai de lire les
+messages et répondre à vos questions régulièrement. Mais la participation de
+tous est encouragée: n'hésitez pas à répondre aux questions de vos camarades,
+c'est le meilleur moyen d'apprendre!
 
 ### Plagiat
 Si vous empruntez du code il faut:
@@ -68,9 +48,44 @@ Il est interdit de publier votre code.
 Je vous invite à consulter les règles concernant le Plagiat de l'ISTY et de l'UVSQ:
 <http://www.isty.uvsq.fr/medias/fichier/guide-anti-plagiat-et-charte_1311241484856.pdf>
 
+
+# Sujet 1: Analyseur Syntaxique pour le langage Tiger 
+## Constitution des Groupes
+
+Pour le sujet 1, le projet est à faire individuellement.
+
 ## Objectif
 
-L'objectif du projet de compilation est d'écrire la phase de traduction en
+L'objectif du projet est d'écrire la phase d'analyse syntaxique complète du langage Tiger.
+Le projet se décompose en deux parties.
+
+### Première partie: Étude de l'algorithme d'analyse syntaxique LR
+
+JCup utilise un analyseur syntaxique de type LALR appartennant à la famille des analyseurs LR (left-to-right rightmost-derivation).
+Faites une recherche documentaire et produisez un document synthétique de deux à trois pages présentant l'analyse LR.
+
+Voici quelques ressources recommandées:
+
+* Modern compiler implementation in ML/C/Java, de Andrew W. Appel
+* La page wikipedia de [l'analyseur LR](https://fr.wikipedia.org/wiki/Analyseur_LR).
+* Le [cours de Théorie des Langages de F. Yvon et A. Demaille](https://www.lrde.epita.fr/~akim/thl/lecture-notes/theorie-des-langages-1.pdf)
+
+### Deuxième partie: Implémentation d'un parseur JCup pour Tiger
+
+Suivez le [sujet du T3](http://tahiti.prism.uvsq.fr/tigergrader/handout/T3) sur le site de correction automatique des TDs.
+Vous pouvez créer un nouvel utilisateur individuel pour tester votre rendu. Pour cela utilisez le nom d'utilisateur "projet_nom1enminuscules".
+
+Le travail à rendre est l'archive contenant votre code ainsi que le rapport préparé dans la première partie.
+Vous pouvez utiliser le site de correction automatique pour vous assurer que votre code fonctionne correctement.
+
+# Sujet 2: Traduction en Langage Intermédiaire
+## Consitution des Groupes
+
+Pour le sujet 2, le projet est à faire en binôme.
+
+## Objectif
+
+L'objectif du projet est d'écrire la phase de traduction en
 langage Intermédiaire (IR) expliquée en cours.  Pour rappel, la grammaire de la
 représentation intermédiaire (IR) est donnée ci-dessous,
 
@@ -333,7 +348,7 @@ Voici l'ordre d'implémentation conseillé:
 
 Toutes les phases du compilateur vues en TP vous sont fournies: du lexeur
 jusqu'à la vérification des types. Le code qui vous est fourni à l'adresse
-<http://tahiti.prism.uvsq.fr/compil/livrable-projet.zip> prends
+<http://www.sifflez.org/lectures/CO/livrable-projet.zip> prends
 en entrée du code Tiger et produit un AST décoré avec les informations de bind.
 L'AST est stocké après la phase de Type checking dans l'attribut ``ast`` de la
 classe ``jtiger.cli.Control``.
@@ -344,9 +359,9 @@ Pour tester votre projet, vous pouvez utiliser le simulateur IRVM 0.0.2.
 Pour installer IRVM suivez les instructions ci-dessous:
 
 ~~~bash
-$ wget http://tahiti.prism.uvsq.fr/compil/irvm-0.0.2.tar.gz
-$ tar xjf irvm-0.0.2.tar.gz
-$ cd irvm-0.0.2/
+$ git clone https://github.com/pablooliveira/irvm.git
+$ cd irvm/
+$ ./autogen.sh
 $ ./configure
 $ make
 $ sudo make install
@@ -363,8 +378,7 @@ Usage: irvm [OPTIONS] INPUT-FILE
 ~~~
 
 IRVM est un simulateur open-source pour la représentation intermédiaire IR.
-La documentation est disponible à l'adresse
-<http://tahiti.prism.uvsq.fr/compil/irvm.html>.
+La documentation est disponible dans `irvm/doc`.
 
 IRVM permet de simuler l'exécution de code IR. Par exemple,
 
@@ -412,39 +426,24 @@ Comme vous avez du le remarquer certains noms de temporaires sont réservés dan
 
 * `rv` pour la valeur de retour
 * `sp` et `fp` pour le stack pointer et frame pointer
-* `i0` `i1` ... `i<n>` pour les paramètres passés en argument (consultez la documentation sur <http://tahiti.prism.uvsq.fr/compil/irvm.html#Special-Temporaries>)
+* `i0` `i1` ... `i<n>` pour les paramètres passés en argument
 
 ## Documentation et Rapport
 
 Le code produit sera commenté et indenté en utilisant un style uniforme.
 Les commentaires seront en anglais.
 
-Un fichier README sera commité à la racine du projet. Il détaillera ce qui
+Un fichier README sera crée à la racine du projet. Il détaillera ce qui
 est implémenté, ce qui marche et ce qui ne marche pas.
 
-De plus, chaque groupe produira un rapport au format PDF détaillant le travail
-fait et décrivant les choix d'implémentation. Le rapport PDF sera commité à la
-racine du projet également et aura pour nom `Rapport.pdf`.  La charte
-anti-plagiat de l'UVSQ *doit être inclue en fin du rapport*.  Le rapport
-comportera 15 pages au maximum (sans tenir compte de la charte anti-plagiat et
-des éventuels annexes).
-
-Enfin, chaque membre du groupe devra compléter le formulaire disponible à l'adresse
-<http://tahiti.prism.uvsq.fr/compil/formulaire.txt>
-
-Une fois complété, chaque membre du groupe:
-
- 1. Le renommera sous le nom `'formulaire-nom.txt'` où nom sera remplacé
-    par son nom de famille.
-
- 2. Me le renverra par mail (avant la date limite de rendu) à l'adresse <pablo.oliveira@uvsq.fr>.
- Le mail portera comme sujet "[COMPIL] Formulaire groupe X" où X est le numéro
- de votre groupe.
+De plus, chaque groupe produira un rapport au format PDF de deux à cinq pages 
+détaillant le travail fait et décrivant les choix d'implémentation. Le rapport
+PDF sera crée à la racine du projet également et aura pour nom `Rapport.pdf`.
 
 ## Tests
 
 Chaque groupe devra produire un ensemble de tests qui valident le traducteur implémenté.
-Les tests seront commités dans un répertoire `tests/` à la racine du projet.
+Les tests seront crées dans un répertoire `tests/` à la racine du projet.
 Pour chaque test vous devez inclure trois fichiers:
 
 * le programme Tiger (``test???.tig``)
@@ -453,22 +452,8 @@ Pour chaque test vous devez inclure trois fichiers:
 
 ## Comment sera noté votre projet
 
-Le barème est le suivant:
-
-* Qualité du code: **4 points**
-    * code bien commenté et structuré
-    * projet rendu avec un ensemble de tests (au minimum 20 par groupe)
-    * projet rendu avec un README qui détaille ce qui est implémenté
-* Correction du code: **8 points**
-* Qualité de la traduction:  **2 points**
-    * Est-ce que les optimizations décrites en cours pour la traduction des expressions conditionnelles ont été implémentées.
-    * Est-ce que d'autres optimizations ont été implémentées (par exemple Constant Folding ?)
-* Rapport: **6 points**
-
-* Contribution individuelle: les [formulaires
-  individuels](http://tahiti.prism.uvsq.fr/compil/formulaire.txt) permettront
-  de déterminer pour chaque membre du groupe un malus/bonus allant de **-20** à
-  **+20** qui viendra s'ajouter au barème ci-dessus.
+Attention votre projet sera exécuté avec la commande ``java jtiger.cli.Compile -h <entree.tig>``.
+La sortie doit être du code IR légal que IRVM peut executer.
 
 La correction du code sera évaluée par un script de manière automatique. Attention assurez vous que les étapes suivantes marchent pour votre rendu.
 Si votre projet nécessite une intervention manuelle de ma part car vous n'avez pas respecté les consignes, vous serez pénalisés.
@@ -479,12 +464,6 @@ $ ant
 $ java jtiger.cli.Compile -h ../secret-tests/test001. > ../secret-tests/test001.ir
 $ irvm ../secret-tests/test001.ir > ../secret-tests/test001.out
 ~~~
-
-Votre projet sera compilé et exécuté sur un ensemble de 140 tests. Votre
-note sera calculée avec la formule suivante: ``nombre de tests passés/140*8``.
-
-Attention votre projet sera exécuté avec la commande ``java jtiger.cli.Compile -h <entree.tig>``.
-La sortie doit être du code IR légal que IRVM peut executer.
 
 Si vous avez tout fini avant la date de rendu et vous souhaitez aller plus loin
 dans le compilateur, envoyez moi un mail.

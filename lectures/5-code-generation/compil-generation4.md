@@ -125,7 +125,7 @@ CJUMP(op, ESEQ(s,e1), e2,  => SEQ(s, CJUMP(op, e1, e2,
 ~~~
 (3)
 BINOP(op, e1, ESEQ(s, e2)) => ESEQ(MOVE(TEMP t, e1),
-                                ESEQ(s, BINOP(op, e1, t)))
+                                ESEQ(s, BINOP(op, t, e2)))
 
 
 (4)
