@@ -329,7 +329,7 @@ out:
 Code   Effet
 ------ --------------------------
 LSL    Logical Shift Left
-RSR    Logical Shift Right
+LSR    Logical Shift Right
 ASR    Arithmetic Shift Right
 ROR    Rotate Right
 RRX    Rotate Right (inclue le bit C de retenue)
@@ -348,7 +348,7 @@ RRX    Rotate Right (inclue le bit C de retenue)
          = -4
 ~~~
 
-* Ajoute 10, le résultat final est -6
+* Ajoute 10, le résultat final est 6
 
 ## Accès mémoire
 
@@ -464,7 +464,7 @@ ldmfd sp!, {lr, r0, r1, r2}
 * Mais contrairement à un simple saut, il faut pouvoir retourner à l'appelant
 * L'instruction ```bl étiquette``:
   * Saute à étiquette
-  * Enregistre dans le registre ``LR`` l'adresse de retour (PC + 4 au moment du saut`` l'adresse de retour (PC + 4 au moment du saut)
+  * Enregistre dans le registre ``LR`` l'adresse de retour (PC + 4 au moment du saut)
 
 ## Retour de fonction
 
